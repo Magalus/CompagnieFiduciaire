@@ -11,9 +11,9 @@
     <body>
         <div id="app">
 
-        <nav class="navbar navbar-dark bg-dark justify-content-center" style='color:white'>
-            <h2>Compagnie Fiduciaire</h2>
-        </nav>
+        <nav class="navbar navbar bg justify-content-center" style='background-color:#0062a9'>
+            <a href="{{ url('/index') }}" style="color:white;text-decoration:none"><h2>Compagnie Fiduciaire</h2></a>
+        </nav><br>
             
             <main>
                 @yield('content')

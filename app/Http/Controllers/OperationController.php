@@ -6,14 +6,19 @@ use Redirect;
 use Request;
 use Validator;
 use DateTime;
+use Carbon\Carbon;
 
 class OperationController extends Controller
 {
     public function index() {
 
+        // Appel à l'API
+
         $response = file_get_contents('https://agrcf.lib.id/exercice@dev/');
         $response = json_decode($response);
         $operations = $response->operations;
+
+        // Recherche des différents RIB 
 
         $ribs = [];
         foreach( $operations as $operation) {
@@ -21,10 +26,12 @@ class OperationController extends Controller
                 array_push($ribs, $operation->RIB);
         }
 
-        return view('operation')->with('ribs', $ribs);
+        return view('index')->with('ribs', $ribs);
     }
 
     public function store(request $request) {
+
+        // Validation du formulaire
 
         $value = request::all();
 
@@ -32,7 +39,7 @@ class OperationController extends Controller
             'operation' => 'required|string|max:255',
             'rib' => 'required|string',
             'dateStart' => 'required|date',
-            'dateEnd' => 'required|date|after:dateStart',
+            'dateEnd' => 'required|date|after_or_equal:dateStart',
         ];
 
         $validator = Validator::make($value, $rules, [
@@ -44,7 +51,7 @@ class OperationController extends Controller
             'dateStart.required' => 'Veuillez indiquer une date de départ',
             'dateEnd.date' => 'Veuillez indiquer une date au format valide',
             'dateEnd.required' => 'Veuillez indiquer une date de fin',
-            'dateEnd.after' => 'La date de fin ne peut pas être inférieur à la date de début',
+            'dateEnd.after_or_equal' => 'La date de fin ne peut pas être inférieure à la date de début',
         ]);
 
         if($validator->fails()) {
@@ -54,28 +61,47 @@ class OperationController extends Controller
                             ->withInput();
         }
 
+        // Appel à l'API
+
         $response = file_get_contents('https://agrcf.lib.id/exercice@dev/');
         $response = json_decode($response);
         $operations = $response->operations;
 
-        if($value['operation'] == 'Liste des opérations') {
-            
-            $results = [];
-            foreach($operations as $operation) {
-            
-                dd(strtotime($operation->Date));
-                $dateOperation = new DateTime($operation->Date);
-                $interval = $value['dateStart']->diff($dateOperation);
-                dd($interval);  
-                
-                if($value['rib'] == $operation->RIB) {
-                    if($value['dateStart'] <= $dateOperation && $value['dateEnd'] >= $dateOperation) {
-                        array_push($results, $operation);
-                    }
+        //Recherche des opérations correspondant aux dates et RIB séléctionnés
+
+        $results = [];
+        foreach($operations as $operation) {
+
+            $dateOperation = str_replace('/', '-', $operation->Date);
+            $dateOperation = carbon::parse($dateOperation)->format('Y-m-d');        
+
+            if($value['rib'] == $operation->RIB) {
+                if($value['dateStart'] <= $dateOperation && $value['dateEnd'] >= $dateOperation) {
+                    array_push($results, $operation);
                 }
             }
         }
 
-        return view('results')->with('results', $results);
+        // Rangement des opérations par date
+
+        if($value['operation'] == 'Liste des opérations') {
+
+            return view('operations')->with('results', $results);
+        }
+
+        // Calcul du solde
+
+        else if($value['operation'] == 'Calcul du solde') {
+
+            $rib = $value['rib'];
+
+            $solde = 0;
+            foreach($results as $result) {
+
+                $solde = $solde + intval($result->Montant);
+            }
+
+            return view('solde')->with('solde', $solde)->with('rib', $rib);
+        }
     }
 }

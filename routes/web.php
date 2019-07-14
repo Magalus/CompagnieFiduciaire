@@ -15,6 +15,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get("/operations", "OperationController@index");
+Route::get("/index", "OperationController@index");
 
-Route::post("/operations", "OperationController@store");
+Route::post("/index", "OperationController@store");
