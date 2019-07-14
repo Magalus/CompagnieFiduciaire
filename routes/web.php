@@ -11,6 +11,6 @@
 |
 */
 
-Route::get("/index", "OperationController@index");
+Route::get("/", "OperationController@index");
 
-Route::post("/index", "OperationController@store");
+Route::post("/", "OperationController@store");
