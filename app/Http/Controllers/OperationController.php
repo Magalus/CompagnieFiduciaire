@@ -86,6 +86,10 @@ class OperationController extends Controller
 
         if($value['operation'] == 'Liste des opérations') {
 
+            usort($results ,function($a, $b){
+                return $a->Date > $b->Date;
+            });
+
             return view('operations')->with('results', $results);
         }
 

@@ -11,10 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get("/index", "OperationController@index");
 
 Route::post("/index", "OperationController@store");
