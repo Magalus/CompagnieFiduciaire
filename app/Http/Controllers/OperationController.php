@@ -86,8 +86,12 @@ class OperationController extends Controller
 
         if($value['operation'] == 'Liste des opérations') {
 
+
+
             usort($results ,function($a, $b){
-                return $a->Date > $b->Date;
+                $date1 = str_replace('/', '-', $a->Date);
+                $date2 = str_replace('/', '-', $b->Date);
+                return carbon::parse($date1)->format('Y-m-d') > carbon::parse($date2)->format('Y-m-d');
             });
 
             return view('operations')->with('results', $results);
