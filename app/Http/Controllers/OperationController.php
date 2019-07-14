@@ -86,8 +86,6 @@ class OperationController extends Controller
 
         if($value['operation'] == 'Liste des opérations') {
 
-
-
             usort($results ,function($a, $b){
                 $date1 = str_replace('/', '-', $a->Date);
                 $date2 = str_replace('/', '-', $b->Date);
